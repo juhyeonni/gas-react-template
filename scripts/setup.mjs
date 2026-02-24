@@ -31,8 +31,8 @@ function prompt(question) {
   })
 }
 
-function run(cmd, opts = {}) {
-  return spawnSync('pnpm', ['exec', ...cmd.split(' ')], {
+function run(args, opts = {}) {
+  return spawnSync('pnpm', ['exec', ...args], {
     cwd: ROOT,
     encoding: 'utf-8',
     ...opts,
@@ -40,7 +40,7 @@ function run(cmd, opts = {}) {
 }
 
 async function ensureLogin() {
-  const check = run('clasp login --status')
+  const check = run(['clasp', 'login', '--status'])
   const output = (check.stdout || '') + (check.stderr || '')
   if (output.includes('not logged in') || check.status !== 0) {
     console.log('📋 claspにログインしていません。ログインを開始します...\n')
@@ -76,7 +76,7 @@ async function main() {
 
   // 3. Create standalone script (appsscript.json provides webapp config)
   console.log(`\n📦 GASプロジェクトを作成中: "${title}"...`)
-  const result = run(`clasp create --title ${title}`)
+  const result = run(['clasp', 'create', '--title', title])
 
   if (result.status !== 0) {
     console.error('❌ プロジェクト作成に失敗しました:')
@@ -108,7 +108,7 @@ async function main() {
 
   // 7. Deploy
   console.log('\n📦 デプロイ中...')
-  const deployResult = run('clasp deploy --description "Initial deployment"')
+  const deployResult = run(['clasp', 'deploy', '--description', 'Initial deployment'])
   if (deployResult.status === 0) {
     process.stdout.write(deployResult.stdout || '')
     // Parse deployment ID
