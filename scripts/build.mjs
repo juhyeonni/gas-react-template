@@ -57,8 +57,22 @@ async function buildCss() {
   console.log('✅ CSS built')
 }
 
+function loadSpreadsheetId() {
+  try {
+    const clasp = JSON.parse(fs.readFileSync(path.join(ROOT, '.clasp.json'), 'utf-8'))
+    return clasp.spreadsheetId || ''
+  } catch {
+    return ''
+  }
+}
+
 async function buildServer() {
   console.log('📦 Building server...')
+
+  const spreadsheetId = loadSpreadsheetId()
+  if (spreadsheetId) {
+    console.log(`   SPREADSHEET_ID: ${spreadsheetId}`)
+  }
 
   await esbuild.build({
     entryPoints: [path.join(SRC_SERVER, 'index.ts')],
@@ -67,6 +81,9 @@ async function buildServer() {
     target: ['es2019'],
     outfile: path.join(DIST, 'Code.js'),
     loader: { '.ts': 'ts' },
+    define: {
+      '__SPREADSHEET_ID__': JSON.stringify(spreadsheetId),
+    },
   })
 
   let code = fs.readFileSync(path.join(DIST, 'Code.js'), 'utf-8')

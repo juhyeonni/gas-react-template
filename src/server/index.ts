@@ -12,21 +12,25 @@ const SHEET_NAME = 'Counter'
 const COUNTER_CELL = 'A1'
 
 /**
- * Get spreadsheet by script property or bound spreadsheet.
- * - Bound script: uses getActiveSpreadsheet()
- * - Standalone script: reads SPREADSHEET_ID from script properties
+ * Build-time spreadsheet ID (injected by esbuild from .clasp.json).
+ * Fallback chain: bound spreadsheet → script property → build-time constant
  */
+declare const __SPREADSHEET_ID__: string
+
 function getSpreadsheet(): GoogleAppsScript.Spreadsheet.Spreadsheet {
   const active = SpreadsheetApp.getActiveSpreadsheet()
   if (active) return active
 
-  const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID')
-  if (!id) {
-    throw new Error(
-      'SPREADSHEET_ID not set. Run: pnpm run setup:sheet <spreadsheet-id>'
-    )
+  const propId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID')
+  if (propId) return SpreadsheetApp.openById(propId)
+
+  if (typeof __SPREADSHEET_ID__ !== 'undefined' && __SPREADSHEET_ID__) {
+    return SpreadsheetApp.openById(__SPREADSHEET_ID__)
   }
-  return SpreadsheetApp.openById(id)
+
+  throw new Error(
+    'SPREADSHEET_ID not configured. Set via: settings page, script property, or .clasp.json'
+  )
 }
 
 function getSheet(): GoogleAppsScript.Spreadsheet.Sheet {
