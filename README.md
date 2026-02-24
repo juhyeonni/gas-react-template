@@ -1,54 +1,53 @@
 # GAS + React Template
 
-Minimal template for building web apps on Google Apps Script with React.
+Google Apps Script + React でWebアプリを構築するための最小テンプレート。
 
-## Tech Stack
+## 技術スタック
 
-- **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Backend**: Google Apps Script
-- **Build**: esbuild + Babel (template-literals transform)
-- **Deploy**: clasp
+- **フロントエンド**: React 18 + TypeScript + Tailwind CSS
+- **バックエンド**: Google Apps Script
+- **ビルド**: esbuild + Babel (template-literals変換)
+- **デプロイ**: clasp
 
-## Setup
+## セットアップ
 
-### 1. Install dependencies
+### 1. 依存パッケージのインストール
 
 ```bash
 pnpm install
 ```
 
-### 2. Login to clasp
+### 2. claspにログイン
 
 ```bash
 pnpm exec clasp login
 ```
 
-This opens a browser window for Google OAuth. After authorization, credentials are saved to `~/.clasprc.json`.
+ブラウザが開き、Google OAuthの認証画面が表示されます。認証後、資格情報が `~/.clasprc.json` に保存されます。
 
-> If you're on a remote/headless server, use `clasp login --no-localhost` and paste the auth code manually.
+> リモート/ヘッドレスサーバーの場合は `clasp login --no-localhost` を使用し、認証コードを手動で貼り付けてください。
 
-### 3. Create a new GAS project
+### 3. GASプロジェクトの作成
 
-**Option A: Create a standalone script**
+**方法A: スタンドアロンスクリプトを作成**
 
 ```bash
 pnpm exec clasp create --type webapp --title "My App" --rootDir build
 ```
 
-This generates `.clasp.json` with the new script ID automatically.
+新しいスクリプトIDで `.clasp.json` が自動生成されます。
 
-**Option B: Create a script bound to a Google Sheet**
+**方法B: Googleスプレッドシートにバインドされたスクリプトを作成**
 
 ```bash
-# Create a new spreadsheet-bound script
 pnpm exec clasp create --type sheets --title "My App" --rootDir build
 ```
 
-**Option C: Use an existing GAS project**
+**方法C: 既存のGASプロジェクトを使用**
 
-1. Open your project at [script.google.com](https://script.google.com)
-2. Copy the script ID from **Project Settings > IDs**
-3. Create `.clasp.json` manually:
+1. [script.google.com](https://script.google.com) でプロジェクトを開く
+2. **プロジェクトの設定 > ID** からスクリプトIDをコピー
+3. `.clasp.json` を手動で作成:
 
 ```json
 {
@@ -57,51 +56,51 @@ pnpm exec clasp create --type sheets --title "My App" --rootDir build
 }
 ```
 
-### 4. Configure as web app (if created via clasp)
+### 4. Webアプリとして設定 (claspで作成した場合)
 
-After creating, open the Apps Script editor to verify web app settings:
+作成後、Apps Scriptエディタを開いてWebアプリの設定を確認:
 
 ```bash
 pnpm exec clasp open
 ```
 
-In the editor: **Deploy > New deployment > Web app** — set access to "Anyone" or your preferred scope.
+エディタ内: **デプロイ > 新しいデプロイ > ウェブアプリ** — アクセス権を「全員」または任意のスコープに設定。
 
-### 5. Build and deploy
-
-```bash
-pnpm run build   # Build only
-pnpm run push    # Build + push to GAS
-pnpm run deploy  # Build + push + deploy (dev)
-```
-
-## Commands
+### 5. ビルドとデプロイ
 
 ```bash
-pnpm run build              # Build for production
-pnpm run push               # Build + push to GAS
-pnpm run deploy             # Build + push + deploy (dev)
-pnpm run deploy:production  # Build + push + deploy (production)
+pnpm run build   # ビルドのみ
+pnpm run push    # ビルド + GASにプッシュ
+pnpm run deploy  # ビルド + プッシュ + デプロイ (dev)
 ```
 
-## Project Structure
+## コマンド一覧
+
+```bash
+pnpm run build              # 本番用ビルド
+pnpm run push               # ビルド + GASにプッシュ
+pnpm run deploy             # ビルド + プッシュ + デプロイ (dev)
+pnpm run deploy:production  # ビルド + プッシュ + デプロイ (production)
+```
+
+## プロジェクト構成
 
 ```
 src/
-├── client/           # React frontend
-│   ├── main.tsx      # Entry point
-│   ├── App.tsx       # Root component (HashRouter)
-│   ├── pages/        # Page components
-│   ├── api/          # GAS API wrapper (gasCall)
+├── client/           # Reactフロントエンド
+│   ├── main.tsx      # エントリーポイント
+│   ├── App.tsx       # ルートコンポーネント (HashRouter)
+│   ├── pages/        # ページコンポーネント
+│   ├── api/          # GAS APIラッパー (gasCall)
 │   └── styles/       # Tailwind CSS
-└── server/           # GAS backend
+└── server/           # GASバックエンド
     └── index.ts      # doGet, apiGet, apiPost, include
 ```
 
-## How It Works
+## 仕組み
 
-- **HashRouter** is used because GAS doesn't support HTML5 History API
-- **esbuild** bundles the React app into a single IIFE, then Babel transforms template literals for GAS compatibility
-- **CSS is inlined** into `index.html`, JS is loaded via GAS `include()` pattern
-- **`escapeJsForGas`** escapes `</script>` and `://` patterns that break GAS HTML embedding
-- Server code is bundled as ESM then stripped of `import`/`export` for GAS `.gs` format
+- **HashRouter** を使用 — GASはHTML5 History APIをサポートしないため
+- **esbuild** でReactアプリを単一のIIFEにバンドルし、BabelでGAS互換のためにテンプレートリテラルを変換
+- **CSSはインライン化** して `index.html` に埋め込み、JSはGASの `include()` パターンで読み込み
+- **`escapeJsForGas`** で `</script>` や `://` パターンをエスケープ（GAS HTML埋め込み時の破損を防止）
+- サーバーコードはESMとしてバンドル後、`import`/`export` を除去してGAS `.gs` 形式に変換
