@@ -11,22 +11,69 @@ Minimal template for building web apps on Google Apps Script with React.
 
 ## Setup
 
-1. Clone this repository
-2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-3. Set your GAS script ID in `.clasp.json`:
-   ```json
-   {
-     "scriptId": "YOUR_SCRIPT_ID_HERE",
-     "rootDir": "build"
-   }
-   ```
-4. Login to clasp:
-   ```bash
-   pnpm exec clasp login
-   ```
+### 1. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2. Login to clasp
+
+```bash
+pnpm exec clasp login
+```
+
+This opens a browser window for Google OAuth. After authorization, credentials are saved to `~/.clasprc.json`.
+
+> If you're on a remote/headless server, use `clasp login --no-localhost` and paste the auth code manually.
+
+### 3. Create a new GAS project
+
+**Option A: Create a standalone script**
+
+```bash
+pnpm exec clasp create --type webapp --title "My App" --rootDir build
+```
+
+This generates `.clasp.json` with the new script ID automatically.
+
+**Option B: Create a script bound to a Google Sheet**
+
+```bash
+# Create a new spreadsheet-bound script
+pnpm exec clasp create --type sheets --title "My App" --rootDir build
+```
+
+**Option C: Use an existing GAS project**
+
+1. Open your project at [script.google.com](https://script.google.com)
+2. Copy the script ID from **Project Settings > IDs**
+3. Create `.clasp.json` manually:
+
+```json
+{
+  "scriptId": "YOUR_SCRIPT_ID_HERE",
+  "rootDir": "build"
+}
+```
+
+### 4. Configure as web app (if created via clasp)
+
+After creating, open the Apps Script editor to verify web app settings:
+
+```bash
+pnpm exec clasp open
+```
+
+In the editor: **Deploy > New deployment > Web app** — set access to "Anyone" or your preferred scope.
+
+### 5. Build and deploy
+
+```bash
+pnpm run build   # Build only
+pnpm run push    # Build + push to GAS
+pnpm run deploy  # Build + push + deploy (dev)
+```
 
 ## Commands
 
