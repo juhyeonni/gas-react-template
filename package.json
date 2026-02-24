@@ -5,6 +5,7 @@
   "description": "Minimal template for building web apps on Google Apps Script with React",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "setup": "node scripts/setup.mjs",
     "build": "node scripts/build.mjs",
     "push": "node scripts/build.mjs && pnpm exec clasp push --force",
@@ -24,11 +25,13 @@
     "@types/google-apps-script": "^2.0.8",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.24",
     "esbuild": "^0.27.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   },
   "author": "juhyeonni",
   "license": "MIT",

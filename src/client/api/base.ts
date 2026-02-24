@@ -1,6 +1,7 @@
 /**
  * GAS API Base Client
- * Wraps google.script.run for type-safe API calls
+ * - Production (GAS): google.script.run
+ * - Development (Vite): in-memory mock API
  */
 
 declare const google: {
@@ -16,14 +17,59 @@ declare const google: {
   }
 }
 
-/**
- * Wrap google.script.run in a Promise.
- */
+const isGas = typeof google !== 'undefined' && !!google?.script?.run
+
+// --- Mock API (dev mode) ---
+let mockCount = 0
+
+function mockApiGet(action: string, _params?: Record<string, string>): unknown {
+  switch (action) {
+    case 'getCount':
+      return { count: mockCount }
+    case 'ping':
+      return { message: 'pong', timestamp: new Date().toISOString() }
+    default:
+      throw new Error(`Unknown GET action: ${action}`)
+  }
+}
+
+function mockApiPost(action: string, data?: Record<string, unknown>): unknown {
+  switch (action) {
+    case 'increment':
+      return { count: ++mockCount }
+    case 'decrement':
+      return { count: --mockCount }
+    case 'reset':
+      mockCount = 0
+      return { count: mockCount }
+    case 'setCount':
+      mockCount = Number(data?.value) || 0
+      return { count: mockCount }
+    default:
+      throw new Error(`Unknown POST action: ${action}`)
+  }
+}
+
+// --- Core ---
+
 export function gasCall<T>(
   action: string,
   method: 'get' | 'post',
   data?: Record<string, unknown>
 ): Promise<T> {
+  // Dev mode: use mock
+  if (!isGas) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const result = method === 'get'
+          ? mockApiGet(action, data as Record<string, string>)
+          : mockApiPost(action, data)
+        resolve(result as T)
+      }, 100)
+    })
+  }
+
+  // Production: use google.script.run
   return new Promise((resolve, reject) => {
     const handler = google.script.run
       .withSuccessHandler((result: T) => {
